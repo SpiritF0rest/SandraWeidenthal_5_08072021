@@ -90,7 +90,7 @@ function checkItemColor() {
  */
 function checkItemQuantity() {
     let itemQuantity = document.getElementById("quantity").value;
-    if (itemQuantity <= 100) {
+    if (itemQuantity <= 100 && itemQuantity > 0) {
         return true;
     };
 };
@@ -106,6 +106,10 @@ function addItemToCart(item) {
         itemDataId: itemId,
         itemDataQuantity: document.getElementById("quantity").value,
         itemDataColor: document.getElementById("colors").value,
+        itemDataImage: item.imageUrl,
+        itemDataImageAltTxt: item.altTxt,
+        itemDataName: item.name,
+        itemDataPrice: item.price
     };
     if (checkItemColor(itemColors) == true && checkItemQuantity(itemQuantity) == true){
         if (localStorage.getItem("cart")) {
@@ -121,9 +125,9 @@ function addItemToCart(item) {
             localStorage.setItem("cart", JSON.stringify(itemsDataForStorage));
         };
     } else if(checkItemColor(itemColors) != true) {
-        alert("Pour poursuivre l'ajout de produit(s), merci de renseigner la couleur désirée.");
+        alert("Merci de préciser la couleur désirée.");
     } else if(checkItemQuantity(itemQuantity) != true) {
-        alert("La quantité maximale par produit est de 100 unités. Merci de choisir une quantité entre 1 et 100.")
+        alert("Merci de choisir une quantité entre 1 et 100.")
     };
 };
 
