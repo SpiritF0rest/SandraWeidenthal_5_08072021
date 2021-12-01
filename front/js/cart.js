@@ -193,8 +193,8 @@ function calculTotalPrice(items) {
  * Vérification des input
  */
 
-let alphaRegex = /[a-zA-Z\-çñàéèêëïîôüù ]/g;
-let alphaNumberRegex = /[0-9a-zA-Z\-çñàéèêëïîôüù ]/g;
+let alphaRegex = /^[a-zA-Zçñàéèêëïîôüù '-]+$/;
+let alphaNumberRegex = /^[0-9a-zA-Zçñàéèêëïîôüù '-]+$/;
 let emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/g;
 const firstName = document.getElementById("firstName");
 const lastName = document.getElementById("lastName");
@@ -204,47 +204,47 @@ const email = document.getElementById("email");
 
 function checkInput() {
     firstName.addEventListener("input", function(e) { 
-        if (alphaRegex.test(firstName.value) == false) {
-            document.getElementById("firstNameErrorMsg").textContent = "Merci d'entrer un prénom valide, ex: James (lettres et - uniquement).";
+        if (alphaRegex.test(e.target.value) == false) {
+            document.getElementById("firstNameErrorMsg").innerText = "Merci d'entrer un prénom valide, ex: James (lettres et - uniquement).";
             return false; 
         } else {
-            document.getElementById("firstNameErrorMsg").textContent = "";
+            document.getElementById("firstNameErrorMsg").innerText = "";
             return true;
         };
     });
     lastName.addEventListener("input", function(e) { 
-        if (alphaRegex.test(lastName.value) == false) {
-            document.getElementById("lastNameErrorMsg").textContent = "Merci d'entrer un nom valide, ex: Halliday (lettres et - uniquement).";
+        if (alphaRegex.test(e.target.value) == false) {
+            document.getElementById("lastNameErrorMsg").innerText = "Merci d'entrer un nom valide, ex: Halliday (lettres et - uniquement).";
             return false; 
         } else {
-            document.getElementById("lastNameErrorMsg").textContent = "";
+            document.getElementById("lastNameErrorMsg").innerText = "";
             return true;
         }; 
     });
     address.addEventListener("input", function(e) {        
-        if (alphaNumberRegex.test(address.value) == false) {
-            document.getElementById("addressErrorMsg").textContent = "Merci d'entrer une adresse valide, ex: 4 Privet Drive (lettres, chiffres et - uniquement).";
+        if (alphaNumberRegex.test(e.target.value) == false) {
+            document.getElementById("addressErrorMsg").innerText = "Merci d'entrer une adresse valide, ex: 4 Privet Drive (lettres, chiffres et - uniquement).";
             return false; 
         } else {
-            document.getElementById("addressErrorMsg").textContent = "";
+            document.getElementById("addressErrorMsg").innerText = "";
             return true;
         }; 
     }); 
     city.addEventListener("input", function(e) {       
-        if (alphaRegex.test(city.value) == false) {
-            document.getElementById("cityErrorMsg").textContent = "Merci d'entrer une ville valide, ex: Paimpont (lettres et - uniquement).";
+        if (alphaRegex.test(e.target.value) == false) {
+            document.getElementById("cityErrorMsg").innerText = "Merci d'entrer une ville valide, ex: Paimpont (lettres et - uniquement).";
             return false; 
         } else {
-            document.getElementById("cityErrorMsg").textContent = "";
+            document.getElementById("cityErrorMsg").innerText = "";
             return true;
         }; 
     });
      email.addEventListener("input", function(e) {       
-        if (emailRegex.test(email.value) == false) {
-            document.getElementById("emailErrorMsg").textContent = "Merci d'entrer un e-mail valide, ex: email@valide.com.";
+        if (emailRegex.test(e.target.value) == false) {
+            document.getElementById("emailErrorMsg").innerText = "Merci d'entrer un e-mail valide, ex: email@valide.com.";
             return false; 
         } else {
-            document.getElementById("emailErrorMsg").textContent = "";
+            document.getElementById("emailErrorMsg").innerText = "";
             return true;
         };
     });
@@ -253,12 +253,92 @@ function checkInput() {
 /**
  * Récupération des données du formulaire de contact et création d'un objet
  */
-const contact = {
-    firstName : document.getElementById("firstName").textContent,
-    lastName : document.getElementById("lastName").textContent, 
-    address : document.getElementById("address").textContent, 
-    city : document.getElementById("city").textContent,
-    email : document.getElementById("email").textContent
+let contact = {};
+function createContact (){
+    contact = {
+    firstName:  firstName.value,
+    lastName: lastName.value, 
+    address:  address.value, 
+    city:  city.value,
+    email:  email.value
+};
+return contact;
+};
+
+
+/**
+ * Récupération des produits de la commande
+ */
+let productsArray = [];
+function getCartProductsId (){
+    for (let item of itemsDataCart) {
+        productsArray.push(item.itemDataId);
+    };
+};
+
+/**
+ * Validation de formulaire 
+ */
+function formValidation() {
+    
+        if (alphaRegex.test(firstName.value) == true && alphaRegex.test(lastName.value) == true && alphaRegex.test(city.value) == true && alphaNumberRegex.test(address.value) == true && emailRegex.test(email.value) == true) {
+            return true;
+        } else {
+            return false;
+        };
+    
+};
+
+/**
+ * Contrôle avant validation
+ */
+function validationForOrder () {
+    let order = document.getElementById("order");
+    order.addEventListener("click", function (e) {
+        if (formValidation == true) {
+            sendOrder();
+        } else {
+            alert("Merci de remplir correctement le formulaire de contact.");
+        };
+    });
+};
+
+/**
+ * Création de l'objet contenant les données à envoyer
+ */
+let dataToSend;
+function createDataToSend() {
+   dataToSend = {
+    contact :  contact,
+    products : productsArray
+};
+return dataToSend;
+};
+
+/**
+ * Envoi de la requête POST
+ */
+function sendOrder(data) {
+    
+    fetch("http://localhost:3000/api/products/order", {
+        method: "POST",
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data),
+        })
+    .then(function (res) {
+        if (res.ok) {
+            let responseData = res.json();
+            window.location.href = "../html/confirmation.html?orderId=" + responseData.orderId;
+            //localStorage.clear();
+        }
+        console.log(res);
+    })
+    .catch(function (err) {
+        console.log("une erreur est survenu lors de l'envoi des données à l'API");
+    });
 };
 
 /**
@@ -278,6 +358,12 @@ const contact = {
     deleteItem();
 
     checkInput();
+
+    createContact();
+    getCartProductsId();
+    createDataToSend();
+
+    sendOrder(dataToSend);
 
 };
 
