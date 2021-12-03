@@ -1,29 +1,32 @@
 /**
- *Appel API 
+ * API call for all products
+ * @returns { Promise }
  */
 const getKanapDataItems = () => fetch("http://localhost:3000/api/products")
-    .then(function(res) {
+    .then(function (res) {
         if (res.ok) {
             return res.json();
         }
     })
-    .catch(function(err) {
+    .catch(function (err) {
         console.log("Une erreur est survenue lors de l'appel des données à l'API")
     });
 
 
 
 /**
- * création d'une item card
+ * Item card creation
+ * @param {*} item 
+ * @returns { HTMLElement }
  */
 function itemsCardInfo(item) {
 
-   const itemsAnchor = document.createElement("a");
-   const itemsArticle = document.createElement("article");
+    const itemsAnchor = document.createElement("a");
+    const itemsArticle = document.createElement("article");
     itemsAnchor.appendChild(itemsArticle);
-   const itemsImage = document.createElement("img");
-   const itemsH3 = document.createElement("h3");
-   const itemsParagraph = document.createElement("p");
+    const itemsImage = document.createElement("img");
+    const itemsH3 = document.createElement("h3");
+    const itemsParagraph = document.createElement("p");
     itemsArticle.appendChild(itemsImage);
     itemsArticle.appendChild(itemsH3);
     itemsArticle.appendChild(itemsParagraph);
@@ -37,27 +40,26 @@ function itemsCardInfo(item) {
     itemsParagraph.textContent = `${item.description}`;
 
     return itemsAnchor;
-}
+};
 
 /**
- * Création pagination
+ * Pagination creation
+ * @param {*} products 
  */
 function pagination(products) {
     const itemsList = document.getElementById("items");
 
-    for (let i = 0; i <= products.length-1; i++) {
+    for (let i = 0; i <= products.length - 1; i++) {
         itemsList.appendChild(itemsCardInfo(products[i]));
     }
-}
+};
 
 /**
- * Fonction principale
+ *  Main function
  */
 const main = async () => {
     const itemsData = await getKanapDataItems();
-
     pagination(itemsData);
-
-}
+};
 
 main();
